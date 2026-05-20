@@ -4,934 +4,641 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LOWASH — Servicio Verificado a Domicilio</title>
+<!-- D-DIN via @font-face CDN fallback + system DIN stack -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<!-- Barlow Condensed as closest open-source DIN surrogate, plus Barlow for body -->
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;300;400;500;600;700&family=Barlow:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  :root {
-    --black: #080808;
-    --black2: #0e0e0e;
-    --surface: #111111;
-    --surface2: #161616;
-    --surface3: #1c1c1c;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --white: #f8f8f8;
-    --white2: #c8c8c8;
-    --white3: #888;
-    --blue: #4a90d9;
-    --blue2: #2a6cb5;
-    --blue-glow: rgba(74,144,217,0.15);
-    --silver: #a8b4c0;
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-  }
+:root {
+  --cream:     #E7E7DD;
+  --cream2:    #DEDED2;
+  --cream3:    #D4D4C6;
+  --parchment: #F2F2EA;
+  --ink:       #1A1A18;
+  --ink2:      #2E2E2A;
+  --ink3:      #4A4A44;
+  --stone:     #7A7A70;
+  --stone2:    #9A9A8E;
+  --border:    rgba(26,26,24,0.1);
+  --border2:   rgba(26,26,24,0.18);
+  /* DIN-style stack: Barlow Condensed mimics D-DIN proportions */
+  --font-din:  'Barlow Condensed', 'DIN Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Barlow', 'DIN Next', Arial, sans-serif;
+}
 
-  html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; }
 
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: var(--font-body);
-    font-weight: 300;
-    line-height: 1.6;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+}
 
-  /* ── NAVBAR ── */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    padding: 0 48px;
-    height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(8,8,8,0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid var(--border);
-    transition: background 0.4s ease;
-  }
+/* ─── NAVBAR ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 56px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(231,231,221,0.93);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.4s;
+}
+.nav-logo {
+  font-family: var(--font-din);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.28em;
+  color: var(--ink);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a {
+  color: var(--stone);
+  text-decoration: none;
+  font-family: var(--font-din);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.25s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-cta {
+  background: var(--ink) !important;
+  color: var(--cream) !important;
+  padding: 9px 22px;
+  letter-spacing: 0.16em !important;
+}
+.nav-cta:hover { opacity: 0.82; }
 
-  .nav-logo {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: 0.12em;
-    color: var(--white);
-    text-decoration: none;
-    position: relative;
-  }
-  .nav-logo span { color: var(--blue); }
+.hamburger { display: none; flex-direction: column; gap: 6px; cursor: pointer; background: none; border: none; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1px; background: var(--ink); }
 
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 36px;
-    list-style: none;
-  }
-  .nav-links a {
-    color: var(--white3);
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--white); }
+.mobile-menu {
+  display: none; flex-direction: column;
+  background: var(--parchment);
+  position: fixed; top: 64px; left: 0; right: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0 16px; z-index: 999;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  color: var(--ink3); text-decoration: none;
+  font-family: var(--font-din); font-size: 14px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 14px 32px; border-bottom: 1px solid var(--border);
+  transition: color 0.2s;
+}
+.mobile-menu a:hover { color: var(--ink); }
 
-  .nav-cta {
-    background: var(--blue);
-    color: var(--white) !important;
-    padding: 9px 22px;
-    border-radius: 8px;
-    font-weight: 500 !important;
-    transition: background 0.2s, transform 0.15s !important;
-  }
-  .nav-cta:hover { background: var(--blue2) !important; transform: translateY(-1px); }
+/* ─── HERO ─── */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding-top: 64px;
+}
+.hero-main {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 32px 80px;
+}
+.hero-eyebrow {
+  font-family: var(--font-din);
+  font-size: 12px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--stone);
+  font-weight: 400; margin-bottom: 40px;
+  opacity: 0; animation: appear 1.2s 0.3s forwards;
+}
+.hero-title {
+  font-family: var(--font-din);
+  font-size: clamp(72px, 11vw, 156px);
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 44px;
+  max-width: 960px;
+  opacity: 0; animation: appear 1.4s 0.5s forwards;
+  text-transform: uppercase;
+}
+.hero-title em {
+  font-style: normal;
+  color: var(--stone);
+  font-weight: 300;
+}
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: 15px; color: var(--stone);
+  max-width: 400px; line-height: 1.85;
+  font-weight: 300; margin-bottom: 52px;
+  opacity: 0; animation: appear 1.2s 0.75s forwards;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+  opacity: 0; animation: appear 1.2s 0.95s forwards;
+}
+.hero-bottom {
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: repeat(4,1fr);
+  opacity: 0; animation: appear 1s 1.2s forwards;
+}
+.hero-stat { padding: 28px 40px; border-right: 1px solid var(--border); }
+.hero-stat:last-child { border-right: none; }
+.stat-n {
+  font-family: var(--font-din); font-size: 40px;
+  font-weight: 300; color: var(--ink);
+  display: block; line-height: 1; margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.stat-l { font-family: var(--font-din); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); }
 
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 4px;
-  }
-  .hamburger span {
-    display: block;
-    width: 24px;
-    height: 1.5px;
-    background: var(--white);
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
+/* ─── SHARED ─── */
+.section-wrap { padding: 128px 0; }
+.section-wrap.alt { background: var(--parchment); }
+.section-wrap.dark { background: var(--ink2); color: var(--cream); }
 
-  /* ── HERO ── */
-  #hero {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 24px 80px;
-    position: relative;
-    overflow: hidden;
-  }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 56px; }
 
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 20%, rgba(74,144,217,0.06) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 20% 80%, rgba(74,144,217,0.04) 0%, transparent 60%);
-    z-index: 0;
-  }
+.label-tag {
+  font-family: var(--font-din);
+  font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--stone);
+  font-weight: 400; margin-bottom: 18px; display: block;
+}
+.label-tag.on-dark { color: var(--stone2); }
 
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
-    z-index: 0;
-  }
+h2.editorial {
+  font-family: var(--font-din);
+  font-size: clamp(44px, 5.5vw, 80px);
+  font-weight: 200; line-height: 1.0;
+  letter-spacing: 0.02em;
+  color: var(--ink); text-transform: uppercase;
+}
+h2.editorial.on-dark { color: var(--parchment); }
+h2.editorial em { font-style: normal; color: var(--stone); font-weight: 300; }
+h2.editorial.on-dark em { color: var(--stone2); }
 
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 820px;
-  }
+/* ─── BUTTONS ─── */
+.btn-dark {
+  background: var(--ink); color: var(--cream);
+  padding: 13px 32px;
+  font-family: var(--font-din);
+  font-size: 12px; font-weight: 400;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border: 1px solid var(--ink); cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+  transition: background 0.3s, color 0.3s;
+}
+.btn-dark:hover { background: transparent; color: var(--ink); }
+.btn-outline {
+  background: transparent; color: var(--ink3);
+  padding: 13px 32px;
+  font-family: var(--font-din);
+  font-size: 12px; font-weight: 400;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border: 1px solid var(--border2); cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+  transition: border-color 0.3s, color 0.3s;
+}
+.btn-outline:hover { border-color: var(--ink); color: var(--ink); }
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(74,144,217,0.1);
-    border: 1px solid rgba(74,144,217,0.25);
-    border-radius: 100px;
-    padding: 6px 16px 6px 10px;
-    font-size: 12.5px;
-    color: var(--blue);
-    letter-spacing: 0.06em;
-    font-weight: 500;
-    margin-bottom: 36px;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.2s forwards;
-  }
-  .badge-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--blue);
-    animation: pulse 2s infinite;
-  }
+/* ─── REVEAL ─── */
+.reveal {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
 
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(44px, 7vw, 88px);
-    font-weight: 800;
-    line-height: 1.0;
-    letter-spacing: -0.02em;
-    margin-bottom: 28px;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.35s forwards;
-  }
-  .hero-title em {
-    font-style: normal;
-    color: transparent;
-    background: linear-gradient(135deg, var(--blue) 0%, var(--silver) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
+/* ─── DIFFERENTIATOR ─── */
+.diff-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 100px; align-items: start;
+}
+.diff-copy h2 { margin-bottom: 28px; }
+.diff-copy p { font-size: 15px; color: var(--stone); line-height: 1.9; max-width: 380px; }
+.diff-feats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border); margin-top: 52px;
+}
+.diff-feat-item { background: var(--cream); padding: 24px 20px; }
+.feat-num {
+  font-family: var(--font-din); font-size: 30px;
+  color: var(--stone2); font-weight: 300; margin-bottom: 8px;
+}
+.feat-text { font-size: 13px; color: var(--stone); line-height: 1.7; }
 
-  .hero-sub {
-    font-size: clamp(15px, 2vw, 18px);
-    color: var(--white3);
-    max-width: 540px;
-    margin: 0 auto 48px;
-    line-height: 1.7;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.5s forwards;
-  }
+.record-panel {
+  background: var(--cream2); border: 1px solid var(--border);
+  padding: 36px; margin-bottom: 2px;
+}
+.rec-live { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.rec-pip { width: 8px; height: 8px; border-radius: 50%; background: #8B3A3A; animation: breathe 2s infinite; }
+.rec-text { font-family: var(--font-din); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8B3A3A; }
+.cam-entry { display: flex; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.cam-entry:last-of-type { border-bottom: none; }
+.cam-num { font-family: var(--font-din); font-size: 28px; font-weight: 300; color: var(--stone2); width: 28px; flex-shrink: 0; }
+.cam-info-text { flex: 1; }
+.cam-title { font-family: var(--font-din); font-size: 14px; font-weight: 400; color: var(--ink2); letter-spacing: 0.06em; margin-bottom: 2px; text-transform: uppercase; }
+.cam-sub { font-size: 12px; color: var(--stone); }
+.cam-pill { font-family: var(--font-din); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); border: 1px solid var(--border2); padding: 4px 12px; }
+.diff-note { background: var(--cream3); border: 1px solid var(--border); border-top: none; padding: 18px 36px; font-size: 12px; color: var(--stone); }
 
-  .hero-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.65s forwards;
-  }
+/* ─── HOW IT WORKS ─── */
+.how-header {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: end;
+  margin-bottom: 72px; padding-bottom: 52px;
+  border-bottom: 1px solid var(--border);
+}
+.how-header p { font-size: 15px; color: var(--stone); line-height: 1.9; }
 
-  .btn-primary {
-    background: var(--blue);
-    color: var(--white);
-    padding: 15px 32px;
-    border-radius: 10px;
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  }
-  .btn-primary:hover {
-    background: var(--blue2);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(74,144,217,0.3);
-  }
+.step-row {
+  display: grid; grid-template-columns: 80px 1fr;
+  gap: 40px; align-items: start;
+  padding: 44px 0; border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.step-row::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  height: 1px; width: 0; background: var(--ink); transition: width 0.5s ease;
+}
+.step-row:hover::after { width: 100%; }
+.step-index {
+  font-family: var(--font-din); font-size: 52px;
+  font-weight: 200; color: var(--stone2); line-height: 1;
+  padding-top: 4px; transition: color 0.3s; text-transform: uppercase;
+}
+.step-row:hover .step-index { color: var(--ink); }
+.step-title-text {
+  font-family: var(--font-din); font-size: 28px;
+  font-weight: 400; color: var(--ink);
+  margin-bottom: 10px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.step-desc { font-size: 14px; color: var(--stone); line-height: 1.85; max-width: 500px; }
 
-  .btn-secondary {
-    background: transparent;
-    color: var(--white2);
-    padding: 15px 32px;
-    border-radius: 10px;
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    border: 1px solid var(--border2);
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: border-color 0.2s, color 0.2s, transform 0.2s;
-  }
-  .btn-secondary:hover {
-    border-color: rgba(255,255,255,0.3);
-    color: var(--white);
-    transform: translateY(-2px);
-  }
+/* ─── LAVADORES SECTION ─── */
+.washers-intro {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: end; margin-bottom: 64px; gap: 40px; flex-wrap: wrap;
+}
+.washers-intro p { font-size: 15px; color: var(--stone); margin-top: 20px; max-width: 380px; line-height: 1.9; }
 
-  .hero-stats {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 48px;
-    margin-top: 72px;
-    padding-top: 48px;
-    border-top: 1px solid var(--border);
-    opacity: 0;
-    animation: fadeUp 0.9s 0.8s forwards;
-    flex-wrap: wrap;
-    gap: 32px;
-  }
-  .stat-item { text-align: center; }
-  .stat-num {
-    font-family: var(--font-display);
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--white);
-    display: block;
-  }
-  .stat-label {
-    font-size: 12px;
-    color: var(--white3);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
+/* cards row (existing) */
+.washers-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--border); margin-bottom: 64px;
+}
+.washer-tile {
+  background: var(--parchment); padding: 32px 24px;
+  transition: background 0.3s; cursor: pointer;
+}
+.washer-tile:hover { background: var(--cream2); }
+.washer-initial {
+  font-family: var(--font-din); font-size: 56px;
+  font-weight: 200; color: var(--ink2); line-height: 1;
+  margin-bottom: 20px; opacity: 0.55; position: relative;
+}
+.online-mark {
+  position: absolute; bottom: 0; right: -4px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #5C7A5C; border: 2px solid var(--parchment);
+}
+.offline-mark {
+  position: absolute; bottom: 0; right: -4px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--stone2); border: 2px solid var(--parchment);
+}
+.washer-name-text {
+  font-family: var(--font-din); font-size: 14px;
+  font-weight: 500; letter-spacing: 0.1em;
+  color: var(--ink); text-transform: uppercase; margin-bottom: 6px;
+}
+.washer-rating-text { font-size: 12px; color: var(--stone); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.stars { letter-spacing: 1px; font-size: 10px; color: var(--stone); }
+.washer-count { font-size: 12px; color: var(--stone2); margin-bottom: 18px; }
+.avail-tag {
+  display: inline-block; font-family: var(--font-din);
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 4px 10px; border: 1px solid var(--border2); color: var(--stone);
+}
+.avail-tag.on { border-color: #5C7A5C; color: #5C7A5C; }
 
-  /* ── SECTION BASE ── */
-  section {
-    position: relative;
-    z-index: 1;
-  }
+/* ─── TOP WASHERS TABLE ─── */
+.table-section-title {
+  font-family: var(--font-din); font-size: 13px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--stone); margin-bottom: 20px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-section-title span { color: var(--stone2); font-size: 11px; letter-spacing: 0.12em; }
 
-  .container {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 32px;
-  }
+.top-table {
+  width: 100%; border-collapse: collapse;
+}
+.top-table thead tr {
+  border-bottom: 1px solid var(--border2);
+}
+.top-table thead th {
+  font-family: var(--font-din); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--stone2); font-weight: 400;
+  padding: 12px 16px; text-align: left;
+}
+.top-table thead th:first-child { padding-left: 0; }
+.top-table thead th:last-child { text-align: right; }
+.top-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+  cursor: default;
+}
+.top-table tbody tr:last-child { border-bottom: none; }
+.top-table tbody tr:hover { background: var(--cream2); }
+.top-table tbody td {
+  padding: 18px 16px; font-size: 13.5px; color: var(--ink3); vertical-align: middle;
+}
+.top-table tbody td:first-child { padding-left: 0; }
+.top-table tbody td:last-child { text-align: right; }
 
-  .section-label {
-    font-size: 11.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--blue);
-    font-weight: 500;
-    margin-bottom: 16px;
-  }
+.rank-num {
+  font-family: var(--font-din); font-size: 20px;
+  font-weight: 300; color: var(--stone2);
+}
+.t-name {
+  font-family: var(--font-din); font-size: 15px;
+  font-weight: 500; letter-spacing: 0.06em;
+  color: var(--ink); text-transform: uppercase;
+}
+.t-sub { font-size: 12px; color: var(--stone); margin-top: 2px; }
+.t-badge {
+  display: inline-block; font-family: var(--font-din);
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border: 1px solid var(--border2); color: var(--stone);
+}
+.t-badge.gold { border-color: #A08030; color: #A08030; }
+.t-badge.silver { border-color: #6A7A88; color: #6A7A88; }
+.t-badge.bronze { border-color: #8A6848; color: #8A6848; }
+.t-stars { color: var(--stone); font-size: 11px; letter-spacing: 1.5px; }
+.t-rating { font-family: var(--font-din); font-size: 18px; font-weight: 300; color: var(--ink); }
+.t-count { font-family: var(--font-din); font-size: 16px; font-weight: 300; color: var(--ink3); }
 
-  .section-title {
-    font-family: var(--font-display);
-    font-size: clamp(30px, 4vw, 52px);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--white);
-  }
+.progress-bar-wrap { width: 100px; height: 2px; background: var(--cream3); border-radius: 1px; margin-left: auto; }
+.progress-bar-fill { height: 2px; background: var(--ink); border-radius: 1px; transition: width 1.2s ease; }
 
-  /* ── DIFFERENTIATOR ── */
-  #diferenciador {
-    padding: 120px 0;
-    background: var(--surface);
-  }
+/* ─── SERVICE TYPES ─── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border);
+}
+.service-card {
+  background: var(--cream); padding: 40px 32px;
+  transition: background 0.3s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.service-card:hover { background: var(--parchment); }
+.service-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 1px; background: var(--ink);
+  transition: width 0.45s ease;
+}
+.service-card:hover::after { width: 100%; }
 
-  .diff-inner {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
-  }
+.svc-icon-wrap {
+  width: 56px; height: 56px;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  transition: border-color 0.3s;
+}
+.service-card:hover .svc-icon-wrap { border-color: var(--ink); }
+.svc-icon-wrap svg { width: 26px; height: 26px; stroke: var(--stone); fill: none; stroke-width: 1.2; transition: stroke 0.3s; }
+.service-card:hover .svc-icon-wrap svg { stroke: var(--ink); }
 
-  .diff-text .section-title { margin-bottom: 24px; }
-  .diff-text p {
-    color: var(--white3);
-    font-size: 16px;
-    line-height: 1.8;
-    margin-bottom: 40px;
-  }
+.svc-title {
+  font-family: var(--font-din); font-size: 20px;
+  font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink);
+  margin-bottom: 12px;
+}
+.svc-desc { font-size: 13.5px; color: var(--stone); line-height: 1.8; margin-bottom: 24px; }
+.svc-price {
+  font-family: var(--font-din); font-size: 28px;
+  font-weight: 200; color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.svc-price span { font-size: 13px; color: var(--stone); font-weight: 300; letter-spacing: 0.04em; vertical-align: middle; }
+.svc-includes { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.svc-include-item {
+  font-size: 12px; color: var(--stone); padding: 5px 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.svc-check { width: 12px; height: 12px; border: 1px solid var(--stone2); flex-shrink: 0; position: relative; }
+.svc-check.checked::after {
+  content: ''; position: absolute; inset: 2px;
+  background: var(--ink);
+}
 
-  .diff-visual {
-    position: relative;
-  }
-  .diff-card {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 32px;
-    position: relative;
-    overflow: hidden;
-  }
-  .diff-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--blue), transparent);
-  }
-  .rec-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-  .rec-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: #e53935;
-    animation: pulse-red 1.5s infinite;
-    box-shadow: 0 0 8px rgba(229,57,53,0.6);
-  }
-  .rec-text {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #e53935;
-    font-weight: 500;
-  }
-  .diff-cam-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface3);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
-  }
-  .cam-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    background: var(--blue-glow);
-    border: 1px solid rgba(74,144,217,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .cam-icon svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 1.5; }
-  .cam-info { flex: 1; }
-  .cam-name { font-size: 13.5px; font-weight: 500; color: var(--white); }
-  .cam-sub { font-size: 12px; color: var(--white3); margin-top: 2px; }
-  .cam-status {
-    font-size: 11px;
-    background: rgba(74,144,217,0.1);
-    color: var(--blue);
-    padding: 3px 10px;
-    border-radius: 100px;
-    border: 1px solid rgba(74,144,217,0.2);
-  }
+/* ─── GALLERY ─── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 280px 280px;
+  gap: 2px;
+}
+.gallery-item {
+  background: var(--cream2);
+  border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; cursor: pointer; position: relative;
+  overflow: hidden; transition: background 0.3s;
+}
+.gallery-item:hover { background: var(--cream3); }
+.gallery-item.span-col { grid-column: span 1; }
+.gallery-item.tall { grid-row: span 2; }
 
-  .diff-features {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 40px;
-  }
-  .diff-feat {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-    background: var(--surface2);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    transition: border-color 0.2s;
-  }
-  .diff-feat:hover { border-color: var(--border2); }
-  .feat-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    background: var(--blue-glow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .feat-icon svg { width: 16px; height: 16px; stroke: var(--blue); fill: none; stroke-width: 1.5; }
-  .feat-label { font-size: 13px; color: var(--white2); font-weight: 400; line-height: 1.4; margin-top: 2px; }
+.gallery-placeholder-icon {
+  width: 40px; height: 40px; opacity: 0.3;
+}
+.gallery-placeholder-icon svg { width: 40px; height: 40px; stroke: var(--ink); fill: none; stroke-width: 0.8; }
+.gallery-upload-hint {
+  font-family: var(--font-din); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--stone2);
+}
+.gallery-tag {
+  position: absolute; bottom: 12px; left: 12px;
+  font-family: var(--font-din); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--stone); background: rgba(231,231,221,0.85);
+  padding: 4px 10px; border: 1px solid var(--border);
+}
 
-  /* ── HOW IT WORKS ── */
-  #funcionamiento {
-    padding: 120px 0;
-    background: var(--black);
-  }
-  .how-header {
-    text-align: center;
-    max-width: 560px;
-    margin: 0 auto 72px;
-  }
-  .how-header p { color: var(--white3); margin-top: 16px; font-size: 16px; }
+/* ─── PREMIUM ─── */
+.premium-intro { max-width: 560px; margin-bottom: 72px; }
+.premium-intro h2 { color: var(--parchment); margin-bottom: 20px; }
+.premium-intro h2 em { color: var(--stone2); }
+.premium-intro p { font-size: 15px; color: var(--stone2); line-height: 1.9; }
+.premium-list {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: rgba(255,255,255,0.06);
+}
+.prem-cell {
+  padding: 48px 36px; transition: background 0.35s;
+  position: relative;
+}
+.prem-cell::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 1px; background: rgba(255,255,255,0.05);
+}
+.prem-cell:hover { background: rgba(255,255,255,0.03); }
+.prem-n {
+  font-family: var(--font-din); font-size: 64px;
+  font-weight: 200; color: rgba(255,255,255,0.08);
+  line-height: 1; margin-bottom: 24px;
+}
+.prem-title {
+  font-family: var(--font-din); font-size: 14px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--parchment); font-weight: 400; margin-bottom: 14px;
+}
+.prem-desc { font-size: 13.5px; color: var(--stone2); line-height: 1.85; }
 
-  .steps-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-    background: var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .step-card {
-    background: var(--surface);
-    padding: 40px 28px;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.3s;
-  }
-  .step-card:hover { background: var(--surface2); }
-  .step-card:first-child { border-radius: 20px 0 0 20px; }
-  .step-card:last-child { border-radius: 0 20px 20px 0; }
+/* ─── CTA ─── */
+.cta-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 100px; align-items: center;
+  padding: 120px 0;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.cta-headline {
+  font-family: var(--font-din);
+  font-size: clamp(48px, 6vw, 96px);
+  font-weight: 200; line-height: 0.95;
+  color: var(--ink); text-transform: uppercase; letter-spacing: 0.02em;
+}
+.cta-headline em { font-style: normal; color: var(--stone); font-weight: 300; }
+.cta-right p { font-size: 15px; color: var(--stone); line-height: 1.9; margin-bottom: 44px; max-width: 340px; }
+.cta-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.cta-trust-items { display: flex; flex-direction: column; gap: 12px; margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--border); }
+.trust-line { display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--stone); letter-spacing: 0.03em; }
+.trust-dash { width: 20px; height: 1px; background: var(--stone2); flex-shrink: 0; }
 
-  .step-num {
-    font-family: var(--font-display);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    color: var(--blue);
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-  .step-icon-wrap {
-    width: 52px; height: 52px;
-    border-radius: 14px;
-    background: var(--surface3);
-    border: 1px solid var(--border2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .step-card:hover .step-icon-wrap {
-    background: var(--blue-glow);
-    border-color: rgba(74,144,217,0.3);
-  }
-  .step-icon-wrap svg { width: 24px; height: 24px; stroke: var(--white2); fill: none; stroke-width: 1.4; transition: stroke 0.2s; }
-  .step-card:hover .step-icon-wrap svg { stroke: var(--blue); }
-  .step-title {
-    font-family: var(--font-display);
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 10px;
-  }
-  .step-desc { font-size: 13.5px; color: var(--white3); line-height: 1.65; }
+/* ─── FOOTER ─── */
+footer { background: var(--ink2); padding: 80px 0 40px; }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 64px; margin-bottom: 60px; }
+.footer-brand-name { font-family: var(--font-din); font-size: 16px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--cream2); font-weight: 500; margin-bottom: 16px; display: block; }
+.footer-brand p { font-size: 13px; color: var(--stone2); line-height: 1.8; max-width: 240px; }
+.footer-col-title { font-family: var(--font-din); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone2); font-weight: 400; margin-bottom: 22px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 12px; }
+.footer-col ul li a { font-size: 13px; color: var(--stone2); text-decoration: none; transition: color 0.25s; }
+.footer-col ul li a:hover { color: var(--cream2); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-copy { font-size: 12px; color: var(--stone2); }
+.footer-legal { display: flex; gap: 28px; }
+.footer-legal a { font-size: 12px; color: var(--stone2); text-decoration: none; transition: color 0.25s; }
+.footer-legal a:hover { color: var(--cream2); }
 
-  .connector {
-    display: none;
-  }
+/* ─── ANIMATIONS ─── */
+@keyframes appear {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes breathe {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
 
-  /* ── WASHERS ── */
-  #lavadores {
-    padding: 120px 0;
-    background: var(--surface);
-  }
-  .washers-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 56px;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .washers-header p { color: var(--white3); margin-top: 12px; max-width: 400px; font-size: 15px; }
-
-  .washers-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-  .washer-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 28px 20px;
-    text-align: center;
-    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .washer-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(74,144,217,0.04), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .washer-card:hover {
-    border-color: var(--border2);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-  }
-  .washer-card:hover::before { opacity: 1; }
-
-  .washer-avatar {
-    width: 76px; height: 76px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--surface3), var(--surface));
-    margin: 0 auto 16px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--white2);
-    border: 2px solid var(--border2);
-  }
-  .online-badge {
-    position: absolute;
-    bottom: 2px; right: 2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #4caf50;
-    border: 2px solid var(--surface2);
-  }
-  .offline-badge {
-    position: absolute;
-    bottom: 2px; right: 2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--white3);
-    border: 2px solid var(--surface2);
-  }
-
-  .washer-name {
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 6px;
-  }
-  .washer-rating {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    margin-bottom: 10px;
-  }
-  .star { color: #f5a623; font-size: 13px; }
-  .rating-num { font-size: 13px; color: var(--white2); font-weight: 500; }
-
-  .washer-meta {
-    font-size: 12px;
-    color: var(--white3);
-    margin-bottom: 16px;
-  }
-  .washer-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11.5px;
-    padding: 5px 12px;
-    border-radius: 100px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-  }
-  .status-online {
-    background: rgba(76,175,80,0.1);
-    color: #4caf50;
-    border: 1px solid rgba(76,175,80,0.2);
-  }
-  .status-offline {
-    background: var(--surface3);
-    color: var(--white3);
-    border: 1px solid var(--border);
-  }
-  .status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-
-  /* ── PREMIUM ── */
-  #premium {
-    padding: 120px 0;
-    background: var(--black);
-  }
-  .premium-header {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto 72px;
-  }
-  .premium-header p { color: var(--white3); margin-top: 16px; font-size: 16px; }
-
-  .premium-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2px;
-    background: var(--border);
-    border-radius: 24px;
-    overflow: hidden;
-  }
-  .premium-item {
-    background: var(--surface);
-    padding: 48px 36px;
-    transition: background 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .premium-item::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--blue-glow), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .premium-item:hover { background: var(--surface2); }
-  .premium-item:hover::after { opacity: 1; }
-
-  .prem-icon {
-    width: 56px; height: 56px;
-    border-radius: 16px;
-    background: var(--surface3);
-    border: 1px solid var(--border2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 28px;
-    transition: all 0.25s;
-  }
-  .premium-item:hover .prem-icon {
-    background: var(--blue-glow);
-    border-color: rgba(74,144,217,0.3);
-  }
-  .prem-icon svg { width: 26px; height: 26px; stroke: var(--silver); fill: none; stroke-width: 1.4; transition: stroke 0.25s; }
-  .premium-item:hover .prem-icon svg { stroke: var(--blue); }
-
-  .prem-title {
-    font-family: var(--font-display);
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 12px;
-  }
-  .prem-desc { font-size: 14px; color: var(--white3); line-height: 1.75; }
-
-  /* ── CTA ── */
-  #cta {
-    padding: 160px 0;
-    background: var(--surface);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  #cta::before {
-    content: '';
-    position: absolute;
-    top: -200px; left: 50%;
-    transform: translateX(-50%);
-    width: 700px; height: 500px;
-    background: radial-gradient(ellipse, rgba(74,144,217,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .cta-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--blue);
-    font-weight: 600;
-    margin-bottom: 24px;
-  }
-  .cta-title {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 5vw, 68px);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--white);
-    max-width: 700px;
-    margin: 0 auto 24px;
-  }
-  .cta-title em {
-    font-style: normal;
-    color: transparent;
-    background: linear-gradient(135deg, var(--blue), var(--silver));
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-  .cta-sub {
-    font-size: 16px;
-    color: var(--white3);
-    max-width: 440px;
-    margin: 0 auto 48px;
-    line-height: 1.7;
-  }
-  .cta-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .cta-trust {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    margin-top: 56px;
-    flex-wrap: wrap;
-  }
-  .trust-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--white3);
-    font-size: 13px;
-  }
-  .trust-item svg { width: 16px; height: 16px; stroke: var(--blue); fill: none; stroke-width: 1.5; }
-
-  /* ── FOOTER ── */
-  footer {
-    background: var(--black);
-    border-top: 1px solid var(--border);
-    padding: 64px 0 32px;
-  }
-  .footer-inner {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 48px;
-    margin-bottom: 56px;
-  }
-  .footer-brand .nav-logo {
-    display: inline-block;
-    margin-bottom: 16px;
-    text-decoration: none;
-  }
-  .footer-brand p { font-size: 13.5px; color: var(--white3); line-height: 1.7; max-width: 260px; }
-  .footer-col h4 {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--white3);
-    font-weight: 500;
-    margin-bottom: 20px;
-  }
-  .footer-col ul { list-style: none; }
-  .footer-col ul li { margin-bottom: 10px; }
-  .footer-col ul li a {
-    color: var(--white3);
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.2s;
-  }
-  .footer-col ul li a:hover { color: var(--white); }
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 28px;
-    border-top: 1px solid var(--border);
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .footer-copy { font-size: 13px; color: var(--white3); }
-  .footer-legal {
-    display: flex;
-    gap: 24px;
-  }
-  .footer-legal a {
-    font-size: 13px;
-    color: var(--white3);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .footer-legal a:hover { color: var(--white); }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(28px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-  @keyframes pulse-red {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.5); }
-    50% { box-shadow: 0 0 0 6px rgba(229,57,53,0); }
-  }
-
-  .reveal {
-    opacity: 0;
-    transform: translateY(32px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* ── MOBILE NAV ── */
-  .mobile-menu {
-    display: none;
-    flex-direction: column;
-    background: rgba(8,8,8,0.97);
-    backdrop-filter: blur(20px);
-    position: fixed;
-    top: 68px; left: 0; right: 0;
-    border-bottom: 1px solid var(--border);
-    padding: 24px;
-    z-index: 999;
-    gap: 4px;
-  }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a {
-    color: var(--white2);
-    text-decoration: none;
-    font-size: 16px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    transition: background 0.2s;
-  }
-  .mobile-menu a:hover { background: var(--surface2); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 1024px) {
-    .diff-inner { grid-template-columns: 1fr; gap: 48px; }
-    .steps-grid { grid-template-columns: repeat(2, 1fr); }
-    .step-card:first-child { border-radius: 20px 0 0 0; }
-    .step-card:last-child { border-radius: 0 0 20px 0; }
-    .washers-grid { grid-template-columns: repeat(2, 1fr); }
-    .premium-grid { grid-template-columns: 1fr 1fr; }
-    .footer-inner { grid-template-columns: 1fr 1fr; }
-  }
-
-  @media (max-width: 768px) {
-    nav { padding: 0 24px; }
-    .nav-links { display: none; }
-    .hamburger { display: flex; }
-    .steps-grid { grid-template-columns: 1fr 1fr; }
-    .washers-grid { grid-template-columns: repeat(2, 1fr); }
-    .premium-grid { grid-template-columns: 1fr; }
-    .diff-features { grid-template-columns: 1fr; }
-    .footer-inner { grid-template-columns: 1fr 1fr; }
-    .washers-header { flex-direction: column; align-items: flex-start; }
-  }
-
-  @media (max-width: 520px) {
-    nav { padding: 0 20px; }
-    .steps-grid { grid-template-columns: 1fr; }
-    .step-card:first-child { border-radius: 20px 20px 0 0; }
-    .step-card:last-child { border-radius: 0 0 20px 20px; }
-    .washers-grid { grid-template-columns: 1fr; }
-    .footer-inner { grid-template-columns: 1fr; }
-    .hero-stats { gap: 24px; }
-    .container { padding: 0 20px; }
-    #diferenciador, #funcionamiento, #lavadores, #premium, #cta { padding: 80px 0; }
-  }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  nav { padding: 0 32px; }
+  .container { padding: 0 32px; }
+  .diff-layout { grid-template-columns: 1fr; gap: 56px; }
+  .hero-bottom { grid-template-columns: repeat(2,1fr); }
+  .washers-row { grid-template-columns: repeat(2,1fr); }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .premium-list { grid-template-columns: 1fr 1fr; }
+  .how-header { grid-template-columns: 1fr; gap: 20px; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .cta-inner { grid-template-columns: 1fr; gap: 56px; }
+  .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 220px 220px 220px; }
+  .gallery-item.tall { grid-row: span 1; }
+  .washers-intro { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  nav { padding: 0 24px; }
+  .container { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .hero-bottom { grid-template-columns: repeat(2,1fr); }
+  .hero-stat { padding: 20px 20px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .premium-list { grid-template-columns: 1fr; }
+  .diff-feats { grid-template-columns: 1fr; }
+  .section-wrap { padding: 88px 0; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 36px; }
+  .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 180px 180px 180px; }
+}
+@media (max-width: 520px) {
+  .hero-title { font-size: 64px; }
+  .hero-bottom { grid-template-columns: 1fr 1fr; }
+  .washers-row { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .cta-headline { font-size: 48px; }
+  .section-wrap { padding: 72px 0; }
+  .container { padding: 0 20px; }
+  nav { padding: 0 20px; }
+  .gallery-grid { grid-template-columns: 1fr; grid-template-rows: repeat(5, 160px); }
+  .top-table thead th:nth-child(4),
+  .top-table tbody td:nth-child(4) { display: none; }
+}
 </style>
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav id="navbar">
-  <a href="#" class="nav-logo">LOW<span>ASH</span></a>
+  <a href="#" class="nav-logo">Lowash</a>
   <ul class="nav-links">
     <li><a href="#diferenciador">Diferenciador</a></li>
-    <li><a href="#funcionamiento">Cómo funciona</a></li>
+    <li><a href="#funcionamiento">Proceso</a></li>
+    <li><a href="#servicios">Servicios</a></li>
     <li><a href="#lavadores">Lavadores</a></li>
-    <li><a href="#premium">Premium</a></li>
+    <li><a href="#galeria">Galería</a></li>
     <li><a href="#cta" class="nav-cta">Reservar</a></li>
   </ul>
   <button class="hamburger" id="hamburger" aria-label="Menú">
@@ -941,371 +648,353 @@
 
 <div class="mobile-menu" id="mobileMenu">
   <a href="#diferenciador" class="mobile-link">Diferenciador</a>
-  <a href="#funcionamiento" class="mobile-link">Cómo funciona</a>
+  <a href="#funcionamiento" class="mobile-link">Proceso</a>
+  <a href="#servicios" class="mobile-link">Servicios</a>
   <a href="#lavadores" class="mobile-link">Lavadores</a>
-  <a href="#premium" class="mobile-link">Premium</a>
-  <a href="#cta" class="mobile-link">Reservar ahora</a>
+  <a href="#galeria" class="mobile-link">Galería</a>
+  <a href="#cta" class="mobile-link">Reservar</a>
 </div>
 
-<!-- HERO -->
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
 <section id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div class="hero-content">
-    <div class="hero-badge">
-      <span class="badge-dot"></span>
-      Servicio disponible en todo Chile
-    </div>
-    <h1 class="hero-title">
-      Tu auto limpio.<br>Cada lavado,<br><em>verificado.</em>
-    </h1>
-    <p class="hero-sub">
-      Contrata lavadores certificados a domicilio. Cada servicio queda grabado digitalmente — accede al registro visual cuando quieras.
-    </p>
+  <div class="hero-main">
+    <span class="hero-eyebrow">Santiago, Chile — Servicio a domicilio</span>
+    <h1 class="hero-title">Tu auto,<br><em>verificado.</em></h1>
+    <p class="hero-sub">Lavadores certificados a domicilio. Cada servicio queda registrado digitalmente — accede al registro cuando quieras.</p>
     <div class="hero-actions">
-      <a href="#cta" class="btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6l6 6-6 6"/></svg>
-        Reservar lavado
-      </a>
-      <a href="#lavadores" class="btn-secondary">
-        Ver lavadores
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8l4 4-4 4M3 12h18"/></svg>
-      </a>
+      <a href="#cta" class="btn-dark">Reservar lavado</a>
+      <a href="#lavadores" class="btn-outline">Ver lavadores</a>
     </div>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <span class="stat-num">+2.400</span>
-        <span class="stat-label">Servicios realizados</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">98%</span>
-        <span class="stat-label">Satisfacción</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">60+</span>
-        <span class="stat-label">Lavadores verificados</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">100%</span>
-        <span class="stat-label">Grabado digitalmente</span>
-      </div>
-    </div>
+  </div>
+  <div class="hero-bottom">
+    <div class="hero-stat"><span class="stat-n">2.400+</span><span class="stat-l">Servicios realizados</span></div>
+    <div class="hero-stat"><span class="stat-n">98%</span><span class="stat-l">Satisfacción</span></div>
+    <div class="hero-stat"><span class="stat-n">60+</span><span class="stat-l">Lavadores verificados</span></div>
+    <div class="hero-stat"><span class="stat-n">100%</span><span class="stat-l">Grabado digitalmente</span></div>
   </div>
 </section>
 
-<!-- DIFERENCIADOR -->
-<section id="diferenciador">
+<!-- ═══════════════════════════ DIFERENCIADOR ═══════════════════════════ -->
+<section id="diferenciador" class="section-wrap alt">
   <div class="container">
-    <div class="diff-inner reveal">
-      <div class="diff-text">
-        <p class="section-label">Diferenciador</p>
-        <h2 class="section-title">Cada servicio queda grabado. Para siempre.</h2>
-        <p>LOWASH no es solo un lavado de autos. Es un registro digital completo. Nuestros lavadores usan cámaras corporales certificadas que registran cada paso del proceso. Tú puedes verlo todo.</p>
-        <div class="diff-features">
-          <div class="diff-feat">
-            <div class="feat-icon">
-              <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
-            </div>
-            <span class="feat-label">Grabación en tiempo real del servicio</span>
-          </div>
-          <div class="diff-feat">
-            <div class="feat-icon">
-              <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            </div>
-            <span class="feat-label">Lavadores 100% verificados y certificados</span>
-          </div>
-          <div class="diff-feat">
-            <div class="feat-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <span class="feat-label">Historial completo de cada lavado</span>
-          </div>
-          <div class="diff-feat">
-            <div class="feat-icon">
-              <svg viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
-            <span class="feat-label">Fotos antes y después del vehículo</span>
-          </div>
+    <div class="diff-layout reveal">
+      <div class="diff-copy">
+        <span class="label-tag">Diferenciador</span>
+        <h2 class="editorial">Cada servicio<br><em>grabado.</em></h2>
+        <p style="margin-top: 28px;">LOWASH no es solo un lavado de autos. Es un registro digital completo. Nuestros lavadores utilizan cámaras corporales certificadas que documentan cada paso del proceso.</p>
+        <p style="margin-top: 18px; color: var(--stone);">Tú puedes ver todo.</p>
+        <div class="diff-feats">
+          <div class="diff-feat-item"><div class="feat-num">01</div><div class="feat-text">Grabación en tiempo real del servicio completo</div></div>
+          <div class="diff-feat-item"><div class="feat-num">02</div><div class="feat-text">Fotos antes y después del vehículo</div></div>
+          <div class="diff-feat-item"><div class="feat-num">03</div><div class="feat-text">Historial permanente de cada lavado</div></div>
+          <div class="diff-feat-item"><div class="feat-num">04</div><div class="feat-text">Acceso inmediato desde la aplicación</div></div>
         </div>
       </div>
-
-      <div class="diff-visual reveal">
-        <div class="diff-card">
-          <div class="rec-indicator">
-            <span class="rec-dot"></span>
-            <span class="rec-text">Grabando · EN VIVO</span>
+      <div>
+        <div class="record-panel">
+          <div class="rec-live"><span class="rec-pip"></span><span class="rec-text">Grabando en vivo</span></div>
+          <div class="cam-entry">
+            <span class="cam-num">I</span>
+            <div class="cam-info-text"><div class="cam-title">Cámara corporal — HD</div><div class="cam-sub">160° de ángulo · Estabilización activa</div></div>
+            <span class="cam-pill">Activa</span>
           </div>
-          <div class="diff-cam-row">
-            <div class="cam-icon">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14"/></svg>
-            </div>
-            <div class="cam-info">
-              <div class="cam-name">Cámara corporal — HD</div>
-              <div class="cam-sub">Ángulo 160° · Estabilización activa</div>
-            </div>
-            <span class="cam-status">Activa</span>
+          <div class="cam-entry">
+            <span class="cam-num">II</span>
+            <div class="cam-info-text"><div class="cam-title">Gafas de grabación</div><div class="cam-sub">Perspectiva de primera persona</div></div>
+            <span class="cam-pill">Activa</span>
           </div>
-          <div class="diff-cam-row">
-            <div class="cam-icon">
-              <svg viewBox="0 0 24 24"><path d="M9 20H5a2 2 0 01-2-2V6a2 2 0 012-2h4m6 0h4a2 2 0 012 2v12a2 2 0 01-2 2h-4m-6 0v-4m0-8v4m0-4H9m6 0h-6"/></svg>
-            </div>
-            <div class="cam-info">
-              <div class="cam-name">Gafas de grabación</div>
-              <div class="cam-sub">Perspectiva de primera persona</div>
-            </div>
-            <span class="cam-status">Activa</span>
-          </div>
-          <div style="margin-top: 20px; padding: 16px; background: var(--surface3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-size: 12px; color: var(--white3); margin-bottom: 4px;">Almacenamiento seguro</div>
-              <div style="font-size: 13px; color: var(--white2); font-weight: 500;">Nube cifrada · 90 días</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 11px; color: var(--blue); margin-bottom: 4px; letter-spacing: 0.06em;">DISPONIBLE</div>
-              <div style="font-size: 13px; color: var(--white2);">Acceso inmediato</div>
-            </div>
+          <div class="cam-entry">
+            <span class="cam-num">III</span>
+            <div class="cam-info-text"><div class="cam-title">Nube segura cifrada</div><div class="cam-sub">Disponible por 90 días</div></div>
+            <span class="cam-pill">Segura</span>
           </div>
         </div>
+        <div class="diff-note">Todos los registros son almacenados con cifrado de extremo a extremo y pueden ser compartidos con aseguradoras o concesionarias.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FUNCIONAMIENTO -->
-<section id="funcionamiento">
+<!-- ════════════════════════════ PROCESO ════════════════════════════ -->
+<section id="funcionamiento" class="section-wrap">
   <div class="container">
     <div class="how-header reveal">
-      <p class="section-label">Proceso</p>
-      <h2 class="section-title">Simple. Seguro. Verificado.</h2>
-      <p>Cuatro pasos y tu auto queda impecable, con registro digital incluido.</p>
-    </div>
-    <div class="steps-grid reveal">
-      <div class="step-card">
-        <div class="step-num">Paso 01</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        </div>
-        <div class="step-title">Elige un lavador</div>
-        <p class="step-desc">Revisa perfiles, ratings, y experiencia. Todos verificados con antecedentes y certificados por LOWASH.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Paso 02</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-        <div class="step-title">Reserva desde la app</div>
-        <p class="step-desc">Selecciona fecha, hora y tipo de lavado. Pago seguro integrado. Confirmación instantánea.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Paso 03</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
-        </div>
-        <div class="step-title">Servicio grabado y verificado</div>
-        <p class="step-desc">El lavador llega equipado con cámara. Todo el proceso queda registrado digitalmente desde el inicio.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Paso 04</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <div class="step-title">Recibe el historial digital</div>
-        <p class="step-desc">Accede al video, fotos antes/después y certificado digital. Historial permanente de tu vehículo.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- LAVADORES -->
-<section id="lavadores">
-  <div class="container">
-    <div class="washers-header reveal">
       <div>
-        <p class="section-label">Lavadores</p>
-        <h2 class="section-title">Profesionales certificados</h2>
-        <p>Verificados, entrenados y equipados con tecnología de grabación.</p>
+        <span class="label-tag">Proceso</span>
+        <h2 class="editorial">Simple.<br><em>Verificado.</em></h2>
       </div>
-      <a href="#cta" class="btn-secondary" style="white-space: nowrap;">Ver todos →</a>
+      <p>Cuatro pasos y tu auto queda impecable, con registro digital incluido desde el primer momento hasta la entrega final.</p>
     </div>
-    <div class="washers-grid reveal">
+    <div class="steps-list reveal">
+      <div class="step-row">
+        <span class="step-index">01</span>
+        <div><div class="step-title-text">Elige un lavador</div><p class="step-desc">Revisa perfiles, ratings y experiencia. Todos nuestros lavadores han sido verificados con antecedentes y certificados por LOWASH antes de comenzar a operar.</p></div>
+      </div>
+      <div class="step-row">
+        <span class="step-index">02</span>
+        <div><div class="step-title-text">Reserva desde la app</div><p class="step-desc">Selecciona la fecha, hora y tipo de lavado. El pago es seguro e integrado. Recibirás confirmación inmediata en tu dispositivo.</p></div>
+      </div>
+      <div class="step-row">
+        <span class="step-index">03</span>
+        <div><div class="step-title-text">Servicio grabado y verificado</div><p class="step-desc">El lavador llega equipado con cámara corporal certificada. Todo el proceso queda registrado digitalmente desde el inicio hasta la finalización.</p></div>
+      </div>
+      <div class="step-row" style="border-bottom:none;">
+        <span class="step-index">04</span>
+        <div><div class="step-title-text">Recibe el historial digital</div><p class="step-desc">Accede al video completo, fotos antes y después, y el certificado digital. Un historial permanente para tu vehículo, siempre disponible.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <div class="washer-card">
-        <div class="washer-avatar">
-          CR
-          <span class="online-badge"></span>
+<!-- ════════════════════════ TIPOS DE SERVICIO ════════════════════════ -->
+<section id="servicios" class="section-wrap alt">
+  <div class="container">
+    <div class="washers-intro reveal">
+      <div>
+        <span class="label-tag">Servicios</span>
+        <h2 class="editorial">Tipos de<br><em>lavado.</em></h2>
+        <p>Selecciona el nivel de cuidado que tu vehículo merece. Todos incluyen grabación digital certificada.</p>
+      </div>
+    </div>
+    <div class="services-grid reveal">
+
+      <!-- Básico -->
+      <div class="service-card">
+        <div class="svc-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
-        <div class="washer-name">Carlos R.</div>
-        <div class="washer-rating">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          <span class="rating-num">4.98</span>
+        <div class="svc-title">Lavado Básico</div>
+        <div class="svc-desc">Limpieza exterior completa con productos de calidad profesional. Ideal para mantenimiento regular.</div>
+        <div class="svc-price">$9.990 <span>/ servicio</span></div>
+        <div class="svc-includes">
+          <div class="svc-include-item"><span class="svc-check checked"></span>Lavado exterior</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Enjuague de rines</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Secado con paño</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Grabación digital</div>
+          <div class="svc-include-item"><span class="svc-check"></span>Interior</div>
+          <div class="svc-include-item"><span class="svc-check"></span>Encerado</div>
         </div>
-        <div class="washer-meta">312 lavados completados</div>
-        <span class="washer-status status-online"><span class="status-dot"></span>Disponible ahora</span>
       </div>
 
-      <div class="washer-card">
-        <div class="washer-avatar">
-          MV
-          <span class="online-badge"></span>
+      <!-- Premium -->
+      <div class="service-card" style="background: var(--ink); color: var(--cream);">
+        <div class="svc-icon-wrap" style="border-color: rgba(255,255,255,0.15);">
+          <svg viewBox="0 0 24 24" style="stroke: var(--stone2);"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </div>
-        <div class="washer-name">María V.</div>
-        <div class="washer-rating">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          <span class="rating-num">4.96</span>
+        <div style="position:absolute;top:16px;right:20px;font-family:var(--font-din);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--stone2);border:1px solid rgba(255,255,255,0.12);padding:4px 10px;">Más popular</div>
+        <div class="svc-title" style="color:var(--cream);">Lavado Premium</div>
+        <div class="svc-desc" style="color: var(--stone2);">Limpieza completa interior y exterior. Aspirado, limpieza de tablero y tratamiento de superficies.</div>
+        <div class="svc-price" style="color:var(--cream);">$19.990 <span style="color:var(--stone2);">/ servicio</span></div>
+        <div class="svc-includes" style="border-color:rgba(255,255,255,0.08);">
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check checked" style="border-color:rgba(255,255,255,0.3);"></span>Lavado exterior</div>
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check checked" style="border-color:rgba(255,255,255,0.3);"></span>Enjuague de rines</div>
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check checked" style="border-color:rgba(255,255,255,0.3);"></span>Interior aspirado</div>
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check checked" style="border-color:rgba(255,255,255,0.3);"></span>Grabación digital</div>
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check checked" style="border-color:rgba(255,255,255,0.3);"></span>Tablero y plásticos</div>
+          <div class="svc-include-item" style="color:var(--stone2);"><span class="svc-check"></span>Encerado</div>
         </div>
-        <div class="washer-meta">278 lavados completados</div>
-        <span class="washer-status status-online"><span class="status-dot"></span>Disponible ahora</span>
       </div>
 
-      <div class="washer-card">
-        <div class="washer-avatar">
-          JM
-          <span class="offline-badge"></span>
+      <!-- Full Detail -->
+      <div class="service-card">
+        <div class="svc-icon-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         </div>
-        <div class="washer-name">Jorge M.</div>
-        <div class="washer-rating">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          <span class="rating-num">4.94</span>
+        <div class="svc-title">Full Detail</div>
+        <div class="svc-desc">El servicio más completo. Encerado, pulido de faros, tratamiento de cuero, limpieza de motor y más.</div>
+        <div class="svc-price">$34.990 <span>/ servicio</span></div>
+        <div class="svc-includes">
+          <div class="svc-include-item"><span class="svc-check checked"></span>Todo lo anterior</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Encerado y sellado</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Pulido de faros</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Tratamiento de cuero</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Limpieza de motor</div>
+          <div class="svc-include-item"><span class="svc-check checked"></span>Certificado premium</div>
         </div>
-        <div class="washer-meta">441 lavados completados</div>
-        <span class="washer-status status-offline"><span class="status-dot"></span>No disponible</span>
-      </div>
-
-      <div class="washer-card">
-        <div class="washer-avatar">
-          DP
-          <span class="online-badge"></span>
-        </div>
-        <div class="washer-name">Diego P.</div>
-        <div class="washer-rating">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          <span class="rating-num">4.97</span>
-        </div>
-        <div class="washer-meta">189 lavados completados</div>
-        <span class="washer-status status-online"><span class="status-dot"></span>Disponible ahora</span>
       </div>
 
     </div>
   </div>
 </section>
 
-<!-- PREMIUM -->
-<section id="premium">
+<!-- ════════════════════════════ LAVADORES ════════════════════════════ -->
+<section id="lavadores" class="section-wrap">
   <div class="container">
-    <div class="premium-header reveal">
-      <p class="section-label">Características</p>
-      <h2 class="section-title">Tecnología al servicio de tu tranquilidad</h2>
-      <p>Cada detalle diseñado para que tengas control total de tu experiencia.</p>
+    <div class="washers-intro reveal">
+      <div>
+        <span class="label-tag">Lavadores</span>
+        <h2 class="editorial">Profesionales<br><em>certificados.</em></h2>
+        <p>Verificados, entrenados y equipados con tecnología de grabación de última generación.</p>
+      </div>
+      <a href="#cta" class="btn-outline" style="white-space:nowrap;align-self:flex-end;">Ver todos →</a>
     </div>
-    <div class="premium-grid reveal">
 
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
-        </div>
-        <div class="prem-title">Grabación de servicios</div>
-        <p class="prem-desc">Cámaras corporales y gafas HD registran el proceso completo. Accede al video de tu servicio en cualquier momento desde la app.</p>
+    <!-- Cards -->
+    <div class="washers-row reveal">
+      <div class="washer-tile">
+        <div class="washer-initial">C<span class="online-mark"></span></div>
+        <div class="washer-name-text">Carlos R.</div>
+        <div class="washer-rating-text"><span class="stars">★★★★★</span> 4.98</div>
+        <div class="washer-count">312 servicios completados</div>
+        <span class="avail-tag on">Disponible</span>
       </div>
-
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <div class="prem-title">Seguridad total</div>
-        <p class="prem-desc">Lavadores con antecedentes verificados, seguro de responsabilidad civil, y geolocalización activa durante todo el servicio.</p>
+      <div class="washer-tile">
+        <div class="washer-initial">M<span class="online-mark"></span></div>
+        <div class="washer-name-text">María V.</div>
+        <div class="washer-rating-text"><span class="stars">★★★★★</span> 4.96</div>
+        <div class="washer-count">278 servicios completados</div>
+        <span class="avail-tag on">Disponible</span>
       </div>
-
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-        </div>
-        <div class="prem-title">Respaldo en la nube</div>
-        <p class="prem-desc">Videos y fotos almacenados cifrados por 90 días. Comparte el registro con tu aseguradora, concesionaria o quien necesites.</p>
+      <div class="washer-tile">
+        <div class="washer-initial">J<span class="offline-mark"></span></div>
+        <div class="washer-name-text">Jorge M.</div>
+        <div class="washer-rating-text"><span class="stars">★★★★★</span> 4.94</div>
+        <div class="washer-count">441 servicios completados</div>
+        <span class="avail-tag">No disponible</span>
       </div>
-
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <div class="prem-title">Historial del vehículo</div>
-        <p class="prem-desc">Registro permanente de todos los servicios. Demuestra el cuidado de tu auto en ventas, garantías o mantenciones.</p>
+      <div class="washer-tile">
+        <div class="washer-initial">D<span class="online-mark"></span></div>
+        <div class="washer-name-text">Diego P.</div>
+        <div class="washer-rating-text"><span class="stars">★★★★★</span> 4.97</div>
+        <div class="washer-count">189 servicios completados</div>
+        <span class="avail-tag on">Disponible</span>
       </div>
-
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-        </div>
-        <div class="prem-title">Calidad verificada</div>
-        <p class="prem-desc">Sistema de evaluación post-servicio. Solo los lavadores con rating superior a 4.8 pueden operar en la plataforma.</p>
-      </div>
-
-      <div class="premium-item">
-        <div class="prem-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V7a4 4 0 00-8 0v2h8z"/></svg>
-        </div>
-        <div class="prem-title">Pago 100% seguro</div>
-        <p class="prem-desc">Transacciones cifradas con retención del pago hasta que confirmes la calidad del servicio. Tu dinero siempre protegido.</p>
-      </div>
-
     </div>
-  </div>
-</section>
 
-<!-- CTA -->
-<section id="cta">
-  <div class="container">
+    <!-- TOP TABLE -->
     <div class="reveal">
-      <p class="cta-label">¿Listo para comenzar?</p>
-      <h2 class="cta-title">Tu auto merece un servicio <em>verificado.</em></h2>
-      <p class="cta-sub">Reserva tu primer lavado hoy. Verificado, grabado y entregado con excelencia.</p>
-      <div class="cta-actions">
-        <a href="#" class="btn-primary" style="font-size: 16px; padding: 17px 40px;">
-          Reservar ahora
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6l6 6-6 6"/></svg>
-        </a>
-        <a href="#lavadores" class="btn-secondary" style="font-size: 16px; padding: 17px 40px;">Explorar lavadores</a>
+      <div class="table-section-title">
+        Ranking mensual — Top lavadores
+        <span>Mayo 2025</span>
       </div>
-      <div class="cta-trust">
-        <div class="trust-item">
-          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          Lavadores verificados
+      <table class="top-table">
+        <thead>
+          <tr>
+            <th style="width:48px;">#</th>
+            <th>Lavador</th>
+            <th>Nivel</th>
+            <th>Rating</th>
+            <th>Servicios</th>
+            <th style="width:140px;">Desempeño</th>
+          </tr>
+        </thead>
+        <tbody id="top-table-body">
+          <!-- Injected by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ GALERÍA ════════════════════════════ -->
+<section id="galeria" class="section-wrap alt">
+  <div class="container">
+    <div class="washers-intro reveal">
+      <div>
+        <span class="label-tag">Galería</span>
+        <h2 class="editorial">Servicios<br><em>realizados.</em></h2>
+        <p>Registros visuales de nuestros lavadores en acción. Cada imagen corresponde a un servicio verificado y grabado.</p>
+      </div>
+    </div>
+    <div class="gallery-grid reveal">
+
+      <!-- Large left -->
+      <div class="gallery-item tall">
+        <div class="gallery-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="gallery-upload-hint">Subir imagen</div>
+        <span class="gallery-tag">Full Detail — Providencia</span>
+      </div>
+
+      <!-- Top right -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="gallery-upload-hint">Subir imagen</div>
+        <span class="gallery-tag">Premium — Las Condes</span>
+      </div>
+
+      <!-- Top far right -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="gallery-upload-hint">Subir imagen</div>
+        <span class="gallery-tag">Antes / Después</span>
+      </div>
+
+      <!-- Bottom right x2 -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="gallery-upload-hint">Subir imagen</div>
+        <span class="gallery-tag">Básico — Ñuñoa</span>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="gallery-upload-hint">Subir imagen</div>
+        <span class="gallery-tag">Interior — Vitacura</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ PREMIUM ════════════════════════════ -->
+<section id="premium" class="section-wrap dark">
+  <div class="container">
+    <div class="premium-intro reveal">
+      <span class="label-tag on-dark">Características</span>
+      <h2 class="editorial on-dark">Tecnología al servicio<br>de tu <em>tranquilidad.</em></h2>
+      <p style="margin-top:20px;">Cada detalle diseñado para que tengas control total sobre tu experiencia.</p>
+    </div>
+    <div class="premium-list reveal">
+      <div class="prem-cell"><div class="prem-n">01</div><div class="prem-title">Grabación de servicios</div><p class="prem-desc">Cámaras corporales y gafas HD registran el proceso completo. Accede al video de tu servicio en cualquier momento desde la aplicación.</p></div>
+      <div class="prem-cell"><div class="prem-n">02</div><div class="prem-title">Seguridad total</div><p class="prem-desc">Lavadores con antecedentes verificados, seguro de responsabilidad civil y geolocalización activa durante todo el servicio.</p></div>
+      <div class="prem-cell"><div class="prem-n">03</div><div class="prem-title">Respaldo en la nube</div><p class="prem-desc">Videos y fotos almacenados con cifrado por 90 días. Comparte el registro con tu aseguradora o concesionaria cuando lo necesites.</p></div>
+      <div class="prem-cell"><div class="prem-n">04</div><div class="prem-title">Historial del vehículo</div><p class="prem-desc">Registro permanente de todos los servicios. Demuestra el cuidado de tu auto en ventas, garantías o mantenciones programadas.</p></div>
+      <div class="prem-cell"><div class="prem-n">05</div><div class="prem-title">Calidad verificada</div><p class="prem-desc">Sistema de evaluación post-servicio. Solo los lavadores con rating superior a 4.8 pueden operar activamente en la plataforma.</p></div>
+      <div class="prem-cell"><div class="prem-n">06</div><div class="prem-title">Pago protegido</div><p class="prem-desc">El pago se retiene hasta que confirmes la calidad del servicio. Tu dinero siempre protegido con transacciones totalmente cifradas.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ CTA ═══════════════════════════════ -->
+<section id="cta" class="section-wrap">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2 class="cta-headline">Tu auto merece un<br>servicio <em>verificado.</em></h2>
+      <div class="cta-right">
+        <p>Reserva tu primer lavado hoy. Verificado, grabado y entregado con la excelencia que tu auto merece.</p>
+        <div class="cta-actions">
+          <a href="#" class="btn-dark">Reservar ahora</a>
+          <a href="#lavadores" class="btn-outline">Explorar lavadores</a>
         </div>
-        <div class="trust-item">
-          <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
-          Servicio grabado
-        </div>
-        <div class="trust-item">
-          <svg viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Pago seguro
-        </div>
-        <div class="trust-item">
-          <svg viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-          Rating garantizado
+        <div class="cta-trust-items">
+          <div class="trust-line"><span class="trust-dash"></span>Lavadores verificados con antecedentes</div>
+          <div class="trust-line"><span class="trust-dash"></span>Servicio grabado y documentado</div>
+          <div class="trust-line"><span class="trust-dash"></span>Pago seguro y protegido</div>
+          <div class="trust-line"><span class="trust-dash"></span>Rating garantizado mínimo 4.8</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
 <footer>
   <div class="container">
-    <div class="footer-inner">
+    <div class="footer-top">
       <div class="footer-brand">
-        <a href="#" class="nav-logo" style="display: inline-block; margin-bottom: 16px; text-decoration: none; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 0.12em; color: var(--white);">LOW<span style="color: var(--blue);">ASH</span></a>
+        <span class="footer-brand-name">Lowash</span>
         <p>La plataforma chilena de lavado de autos a domicilio con registro digital verificado. Confianza, trazabilidad y excelencia.</p>
       </div>
       <div class="footer-col">
-        <h4>Plataforma</h4>
+        <div class="footer-col-title">Plataforma</div>
         <ul>
           <li><a href="#">Cómo funciona</a></li>
           <li><a href="#">Lavadores</a></li>
-          <li><a href="#">Precios</a></li>
+          <li><a href="#">Servicios</a></li>
           <li><a href="#">App móvil</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Empresa</h4>
+        <div class="footer-col-title">Empresa</div>
         <ul>
           <li><a href="#">Nosotros</a></li>
           <li><a href="#">Blog</a></li>
@@ -1314,7 +1003,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Soporte</h4>
+        <div class="footer-col-title">Soporte</div>
         <ul>
           <li><a href="#">Ayuda</a></li>
           <li><a href="#">Ser lavador</a></li>
@@ -1335,49 +1024,105 @@
 </footer>
 
 <script>
-  // Hamburger
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  hamburger.addEventListener('click', () => {
-    mobileMenu.classList.toggle('open');
-  });
-  document.querySelectorAll('.mobile-link').forEach(link => {
-    link.addEventListener('click', () => mobileMenu.classList.remove('open'));
-  });
+/* ── Navbar ── */
+const navbar = document.getElementById('navbar');
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
 
-  // Navbar scroll effect
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 60) {
-      navbar.style.background = 'rgba(8,8,8,0.96)';
-    } else {
-      navbar.style.background = 'rgba(8,8,8,0.85)';
+hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+window.addEventListener('scroll', () => {
+  navbar.style.background = window.scrollY > 40
+    ? 'rgba(231,231,221,0.97)'
+    : 'rgba(231,231,221,0.93)';
+}, { passive: true });
+
+/* ── Reveal on scroll ── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
     }
   });
+}, { threshold: 0.08 });
 
-  // Reveal on scroll
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible');
-        }, 60);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  reveals.forEach(el => observer.observe(el));
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 70 + 'ms';
+  io.observe(el);
+});
 
-  // Stagger children in grids
-  document.querySelectorAll('.steps-grid, .washers-grid, .premium-grid').forEach(grid => {
-    const children = grid.children;
-    Array.from(children).forEach((child, i) => {
-      child.style.transitionDelay = (i * 80) + 'ms';
-      child.classList.add('reveal');
-      observer.observe(child);
-    });
+/* ── TOP WASHERS TABLE DATA ── */
+const topWashers = [
+  { rank: 1, name: 'Jorge M.',  city: 'Providencia',  badge: 'gold',   label: 'Oro',   rating: 4.94, count: 441, pct: 98 },
+  { rank: 2, name: 'Carlos R.', city: 'Las Condes',   badge: 'silver', label: 'Plata', rating: 4.98, count: 312, pct: 94 },
+  { rank: 3, name: 'Diego P.',  city: 'Ñuñoa',        badge: 'bronze', label: 'Bronce',rating: 4.97, count: 189, pct: 89 },
+  { rank: 4, name: 'María V.',  city: 'Vitacura',     badge: '',       label: '',      rating: 4.96, count: 278, pct: 83 },
+  { rank: 5, name: 'Sofía L.',  city: 'Maipú',        badge: '',       label: '',      rating: 4.91, count: 156, pct: 74 },
+  { rank: 6, name: 'Rodrigo A.',city: 'La Florida',   badge: '',       label: '',      rating: 4.89, count: 134, pct: 63 },
+];
+
+const tbody = document.getElementById('top-table-body');
+topWashers.forEach(w => {
+  const stars = '★'.repeat(Math.round(w.rating)) + '☆'.repeat(5 - Math.round(w.rating));
+  const badgeEl = w.badge
+    ? `<span class="t-badge ${w.badge}">${w.label}</span>`
+    : `<span style="font-size:12px;color:var(--stone2);">—</span>`;
+  tbody.innerHTML += `
+    <tr>
+      <td><span class="rank-num">${String(w.rank).padStart(2,'0')}</span></td>
+      <td>
+        <div class="t-name">${w.name}</div>
+        <div class="t-sub">${w.city}</div>
+      </td>
+      <td>${badgeEl}</td>
+      <td>
+        <div class="t-stars">${stars}</div>
+        <div class="t-rating">${w.rating}</div>
+      </td>
+      <td><span class="t-count">${w.count}</span></td>
+      <td>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" data-pct="${w.pct}" style="width:0%"></div>
+        </div>
+      </td>
+    </tr>`;
+});
+
+/* Animate progress bars when table is visible */
+const tableObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+      tableObs.disconnect();
+    }
   });
+}, { threshold: 0.3 });
+const tableEl = document.querySelector('.top-table');
+if (tableEl) tableObs.observe(tableEl);
+
+/* ── Sort table ── */
+document.querySelectorAll('.top-table thead th').forEach((th, col) => {
+  th.style.cursor = 'pointer';
+  th.title = 'Ordenar';
+  th.addEventListener('click', () => {
+    const rows = [...tbody.querySelectorAll('tr')];
+    const asc = th.dataset.asc !== 'true';
+    th.dataset.asc = asc;
+    rows.sort((a, b) => {
+      const av = a.cells[col]?.textContent.trim() || '';
+      const bv = b.cells[col]?.textContent.trim() || '';
+      const an = parseFloat(av.replace(/[^0-9.]/g,''));
+      const bn = parseFloat(bv.replace(/[^0-9.]/g,''));
+      if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    rows.forEach(r => tbody.appendChild(r));
+  });
+});
 </script>
 </body>
 </html>
